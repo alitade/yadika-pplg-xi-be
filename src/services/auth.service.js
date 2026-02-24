@@ -1,14 +1,31 @@
-  exports.login = (username, password) => {
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const AppError = require('../errors/AppError')
+const userModel = require('../models/user.model')
+
+exports.login = async (username, password) => {
   if (!username || !password) {
-    throw new Error('USERNAME_PASSWORD_REQUIRED')
+    throw new AppError('USERNAME_PASSWORD_REQUIRED', 400)
   }
 
-  // simulasi user
-  if (username !== 'admin' || password !== '123') {
-    throw new Error('INVALID_CREDENTIALS')
+  const user = await userModel.findByUsername(username)
+
+  if (!user) {
+    throw new AppError('INVALID_CREDENTIALS', 401)
   }
 
-  return {
-    token: 'fake-jwt-token'
+  const isMatch = await bcrypt.compare(password, user.password)
+
+  if (!isMatch) {
+    throw new AppError('INVALID_CREDENTIALS', 401)
   }
+
+  const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+  )
+
+  return { token }
 }
+

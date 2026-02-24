@@ -13,4 +13,7 @@ app.get('/', (req, res) => {
   res.send('Hello Express')
 })
 
+const userRoutes = require('./routes/user.routes')
+app.use('/users', userRoutes)
+
 module.exports = app

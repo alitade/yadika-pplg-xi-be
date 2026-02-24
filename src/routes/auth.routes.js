@@ -1,11 +1,12 @@
 const express = require('express')
 const router = express.Router()
 
+const authMiddleware = require('../middlewares/auth.middleware')
 const authController = require('../controllers/auth.controller')
 
-// todo : jelasin apa yang belum beres
-
 router.post('/login', authController.login)
-router.post('/logout', authController.logout)
+
+// route TERPROTEKSI
+router.post('/logout', authMiddleware, authController.logout)
 
 module.exports = router
